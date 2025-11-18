@@ -1,12 +1,7 @@
 package pkg
 
-import "github.com/google/uuid"
+type UUID [16]byte
 
-func Generator(newUUID func() (uuid.UUID, error)) string {
-	generatedUUID, err := newUUID()
-	if err != nil {
-		return "invalid uuid"
-	}
-
-	return generatedUUID.String()
+type UUIDGenerator interface {
+	Generate() (UUID, error)
 }
