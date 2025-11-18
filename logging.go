@@ -1,6 +1,8 @@
 package middles
 
 import (
+	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
@@ -47,14 +49,41 @@ func Logging(logger *slog.Logger, next http.Handler) http.Handler {
 		next.ServeHTTP(&ww, r)
 		end := time.Since(start)
 
-		if ww.statusCode >= http.StatusOK && ww.statusCode < 301 {
+		if errors.Is(r.Context().Err(), context.DeadlineExceeded) {
+			logger.Warn("request timed out",
+				"request_id", reqID,
+				"duration", end.Milliseconds(),
+			)
+		}
+
+		switch {
+		case ww.statusCode >= http.StatusOK && ww.statusCode < http.StatusMultipleChoices:
 			logger.Info(
 				"request handled",
-				"request_id",
-				reqID,
-				"status_code",
-				ww.statusCode,
-				slog.Int64("duration", end.Milliseconds()),
+				"request_id", reqID,
+				"status_code", ww.statusCode,
+				"duration", end.Milliseconds(),
+			)
+		case ww.statusCode >= http.StatusMultipleChoices && ww.statusCode < http.StatusBadRequest:
+			logger.Info(
+				"request redirected",
+				"request_id", reqID,
+				"status_code", ww.statusCode,
+				"duration", end.Milliseconds(),
+			)
+		case ww.statusCode >= http.StatusBadRequest && ww.statusCode < http.StatusInternalServerError:
+			logger.Warn(
+				"request failed",
+				"request_id", reqID,
+				"status_code", ww.statusCode,
+				"duration", end.Milliseconds(),
+			)
+		case ww.statusCode >= http.StatusInternalServerError:
+			logger.Error(
+				"request error",
+				"request_id", reqID,
+				"status_code", ww.statusCode,
+				"duration", end.Milliseconds(),
 			)
 		}
 	})

@@ -19,10 +19,9 @@ func TestLogging(t *testing.T) {
 		handlerFunc http.HandlerFunc
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    string
-		wantErr assert.ValueAssertionFunc
+		name string
+		args args
+		want int
 	}{
 		{
 			name: "TestLoggingSuccessResponse",
@@ -32,24 +31,27 @@ func TestLogging(t *testing.T) {
 					w.WriteHeader(http.StatusOK)
 				},
 			},
+			want: http.StatusOK,
 		},
 		{
 			name: "TestLoggingErrorResponse",
 			args: args{
 				logger: logger,
 				handlerFunc: func(w http.ResponseWriter, r *http.Request) {
-					w.WriteHeader(http.StatusBadRequest)
+					w.WriteHeader(http.StatusInternalServerError)
 				},
 			},
+			want: http.StatusInternalServerError,
 		},
 		{
 			name: "TestLoggingFailedResponse",
 			args: args{
 				logger: logger,
 				handlerFunc: func(w http.ResponseWriter, r *http.Request) {
-					w.WriteHeader(500)
+					w.WriteHeader(400)
 				},
 			},
+			want: http.StatusBadRequest,
 		},
 	}
 
@@ -60,6 +62,7 @@ func TestLogging(t *testing.T) {
 			r := httptest.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 			testHandler.ServeHTTP(w, r)
+			assert.Equal(t, tt.want, w.Code)
 		})
 	}
 }
