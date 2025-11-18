@@ -22,6 +22,7 @@ func Logging(logger *slog.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ww := wrappedWriter{
 			ResponseWriter: w,
+			statusCode:     http.StatusOK,
 		}
 
 		var (
