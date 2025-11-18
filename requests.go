@@ -12,8 +12,7 @@ func GenerateRequestID(uuidGenerator pkg.UUIDGenerator, next http.Handler) http.
 		ctx := r.Context()
 		id, err := uuidGenerator.Generate()
 		if err != nil {
-			// fall back to error status here
-
+			id = pkg.UUID{}
 		}
 		ctx = context.WithValue(ctx, "request_id", id)
 

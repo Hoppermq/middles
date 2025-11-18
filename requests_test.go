@@ -42,14 +42,14 @@ func TestGenerateUUID(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want string
+		want pkg.UUID
 	}{
 		{
 			name: "GenerateRequestID",
 			args: args{
-				generator: mockUUIDGenerator{value: stringToUUID("test-uuid-1234")}, // will prob core dump due to exceeded size
+				generator: mockUUIDGenerator{value: stringToUUID("test-value-uuid-1234")}, // will prob core dump due to exceeded size
 			},
-			want: "test-value-uuid-1234",
+			want: stringToUUID("test-value-uuid-1234"),
 		},
 	}
 
@@ -79,7 +79,7 @@ func TestGenerateRequestID(t *testing.T) {
 			args: args{
 				r:         httptest.NewRequest(http.MethodGet, "/", nil),
 				handler:   nil,
-				generator: mockUUIDGenerator{value: stringToUUID("test-uuid-1234"), err: nil},
+				generator: mockUUIDGenerator{value: stringToUUID("test-value-uuid-1234"), err: nil},
 			},
 		},
 	}
