@@ -1,11 +1,13 @@
-package middles
+package middles_test
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"github.com/hoppermq/middles"
 	"github.com/hoppermq/middles/pkg"
 	"github.com/stretchr/testify/assert"
 )
@@ -82,6 +84,14 @@ func TestGenerateRequestID(t *testing.T) {
 				generator: mockUUIDGenerator{value: stringToUUID("test-value-uuid-1234"), err: nil},
 			},
 		},
+		{
+			name: "GenerateRequestID",
+			args: args{
+				r:         httptest.NewRequest(http.MethodGet, "/", nil),
+				handler:   nil,
+				generator: mockUUIDGenerator{err: errors.New("err")},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -93,7 +103,7 @@ func TestGenerateRequestID(t *testing.T) {
 				assert.Equal(t, tt.args.generator.value, reqID)
 			})
 
-			middleware := GenerateRequestID(&tt.args.generator, next)
+			middleware := middles.GenerateRequestID(&tt.args.generator, next)
 			w := httptest.NewRecorder()
 			middleware.ServeHTTP(w, tt.args.r)
 
