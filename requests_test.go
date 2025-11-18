@@ -1,6 +1,7 @@
 package middles
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -80,6 +81,14 @@ func TestGenerateRequestID(t *testing.T) {
 				r:         httptest.NewRequest(http.MethodGet, "/", nil),
 				handler:   nil,
 				generator: mockUUIDGenerator{value: stringToUUID("test-value-uuid-1234"), err: nil},
+			},
+		},
+		{
+			name: "GenerateRequestID",
+			args: args{
+				r:         httptest.NewRequest(http.MethodGet, "/", nil),
+				handler:   nil,
+				generator: mockUUIDGenerator{err: errors.New("err")},
 			},
 		},
 	}

@@ -24,12 +24,14 @@ func Logging(logger *slog.Logger, next http.Handler) http.Handler {
 			"request received",
 			userAttrs,
 			requestAttrs,
-			slog.Float64("duration", float64(time.Since(start).Milliseconds())),
 		)
 
 		next.ServeHTTP(w, r)
 
-		logger.Info("request handled")
+		logger.Info(
+			"request handled",
+			slog.Float64("duration", float64(time.Since(start).Milliseconds())),
+		)
 
 	})
 }
