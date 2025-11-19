@@ -5,10 +5,14 @@ import "net/http"
 func loadServiceMetadata(w http.ResponseWriter, r *http.Request) {
 	if serviceName := r.Context().Value("service_name"); serviceName != nil {
 		w.Header().Set("X-Service-Name", serviceName.(string))
+	} else {
+		w.Header().Set("X-Service-Name", "")
 	}
 
 	if serviceVersion := r.Context().Value("service_version"); serviceVersion != nil {
 		w.Header().Set("X-Service-Version", serviceVersion.(string))
+	} else {
+		w.Header().Set("X-Service-Version", "")
 	}
 }
 
