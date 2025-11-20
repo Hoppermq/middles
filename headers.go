@@ -25,7 +25,7 @@ func SetHeader(next http.Handler) http.Handler {
 		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		// X-XSS-Protection header removed as it is deprecated and unsupported in modern browsers.
 		w.Header().Set("X-Frame-Options", "DENY")
 
 		loadServiceMetadata(w, r)
