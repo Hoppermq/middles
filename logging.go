@@ -6,23 +6,15 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/hoppermq/middles/pkg"
 )
-
-type wrappedWriter struct {
-	http.ResponseWriter
-	statusCode int
-}
-
-func (w *wrappedWriter) WriteHeader(statusCode int) {
-	w.ResponseWriter.WriteHeader(statusCode)
-	w.statusCode = statusCode
-}
 
 func Logging(logger *slog.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ww := wrappedWriter{
+		ww := pkg.WrappedWriter{
 			ResponseWriter: w,
-			statusCode:     http.StatusOK,
+			StatusCode:     http.StatusOK,
 		}
 
 		var (
@@ -58,32 +50,32 @@ func Logging(logger *slog.Logger, next http.Handler) http.Handler {
 		}
 
 		switch {
-		case ww.statusCode >= http.StatusOK && ww.statusCode < http.StatusMultipleChoices:
+		case ww.StatusCode >= http.StatusOK && ww.StatusCode < http.StatusMultipleChoices:
 			logger.Info(
 				"request handled",
 				"request_id", reqID,
-				"status_code", ww.statusCode,
+				"status_code", ww.StatusCode,
 				"duration", end.Milliseconds(),
 			)
-		case ww.statusCode >= http.StatusMultipleChoices && ww.statusCode < http.StatusBadRequest:
+		case ww.StatusCode >= http.StatusMultipleChoices && ww.StatusCode < http.StatusBadRequest:
 			logger.Info(
 				"request redirected",
 				"request_id", reqID,
-				"status_code", ww.statusCode,
+				"status_code", ww.StatusCode,
 				"duration", end.Milliseconds(),
 			)
-		case ww.statusCode >= http.StatusBadRequest && ww.statusCode < http.StatusInternalServerError:
+		case ww.StatusCode >= http.StatusBadRequest && ww.StatusCode < http.StatusInternalServerError:
 			logger.Warn(
 				"request failed",
 				"request_id", reqID,
-				"status_code", ww.statusCode,
+				"status_code", ww.StatusCode,
 				"duration", end.Milliseconds(),
 			)
-		case ww.statusCode >= http.StatusInternalServerError:
+		case ww.StatusCode >= http.StatusInternalServerError:
 			logger.Error(
 				"request error",
 				"request_id", reqID,
-				"status_code", ww.statusCode,
+				"status_code", ww.StatusCode,
 				"duration", end.Milliseconds(),
 			)
 		}
